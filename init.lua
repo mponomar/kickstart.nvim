@@ -524,6 +524,7 @@ require('lazy').setup({
       -- Snippet Engine & its associated nvim-cmp source
       {
         'L3MON4D3/LuaSnip',
+        opts = {},
         build = (function()
           -- Build Step is needed for regex support in snippets.
           -- This step is not supported in many windows environments.
@@ -537,12 +538,12 @@ require('lazy').setup({
           -- `friendly-snippets` contains a variety of premade snippets.
           --    See the README about individual language/framework/plugin snippets:
           --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
+          {
+            'rafamadriz/friendly-snippets',
+            config = function()
+              require('luasnip.loaders.from_vscode').lazy_load()
+            end,
+          },
         },
       },
       'saadparwaiz1/cmp_luasnip',
@@ -746,9 +747,10 @@ require('lazy').setup({
   },
 })
 
+
 local function remap_popup_menu(key, replacement)
   vim.keymap.set('i', key, function()
-    if vim.fn.pumvisible ~= 0 then
+    if vim.fn.pumvisible() ~= 0 then
       return replacement
     else
       return key
@@ -756,9 +758,20 @@ local function remap_popup_menu(key, replacement)
   end, { expr=true })
 end
 
+vim.keymap.set('n', ',h', [[i#ifndef INCLUDED_=toupper(substitute(bufname("%"), '\.h', "", ""))<cr>_H<cr>#define INCLUDED_=toupper(substitute(bufname("%"), '\.c', "", ""))<cr>_H<cr><cr><cr><cr>#endif<esc>kk]]);
+
+
 remap_popup_menu('<cr>', '<c-y>')
 remap_popup_menu('<c-j>', '<c-n>')
 remap_popup_menu('<c-k>', '<c-p>')
+
+vim.keymap.set('n', 'M', ':make<cr>')
+vim.g.softtabstop=4;
+vim.g.tabstop=4;
+vim.g.expandtab=true;
+vim.o.shiftwidth=4;
+vim.g.wrap = 0;
+
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et syntax=lua
