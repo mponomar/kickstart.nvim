@@ -92,6 +92,10 @@ vim.opt.rtp:prepend(lazypath)
 
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
+  'nvim-neorg/lua-utils.nvim',
+  'nvim-neotest/nvim-nio',
+  'xiyaowong/telescope-emoji',
+  'pysan3/pathlib.nvim',
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
   { 'numToStr/Comment.nvim', opts = {} },
 
@@ -723,8 +727,31 @@ require('lazy').setup({
 
   'sindrets/diffview.nvim',
   { 'ray-x/lsp_signature.nvim', opts={} },
-  'garymjr/nvim-snippets'
+  'garymjr/nvim-snippets',
 
+  'godlygeek/tabular',
+  {
+    "nvim-neorg/neorg",
+    lazy = false, -- Disable lazy loading as some `lazy.nvim` distributions set `lazy = true` by default
+    version = "*", -- Pin Neorg to the latest stable release
+    config = function()
+    neorg = require('neorg')
+    neorg.setup {
+	    load = {
+		    ["core.defaults"] = {},
+		    ["core.concealer"] = {},
+		    ["core.dirman"] = {
+			    config = {
+				    workspaces = {
+					    notes = "~/notes"
+				    },
+                                    default_workspace = "notes"
+			    }
+		    }
+	    }
+    }
+    end,
+  }
 }, {
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
@@ -748,6 +775,8 @@ require('lazy').setup({
 })
 
 
+require("telescope").load_extension("emoji")
+
 local function remap_popup_menu(key, replacement)
   vim.keymap.set('i', key, function()
     if vim.fn.pumvisible() ~= 0 then
@@ -760,6 +789,13 @@ end
 
 vim.keymap.set('n', ',h', [[i#ifndef INCLUDED_=toupper(substitute(bufname("%"), '\.h', "", ""))<cr>_H<cr>#define INCLUDED_=toupper(substitute(bufname("%"), '\.c', "", ""))<cr>_H<cr><cr><cr><cr>#endif<esc>kk]]);
 
+vim.keymap.set('n', '<leader>n<space>', '<Plug>(neorg.qol.todo-items.todo.task-cycle)')
+vim.keymap.set('n', '<leader>nn', '<Plug>(neorg.dirman.new-note)')
+vim.keymap.set('n', '<leader>ni', '<esc>:Neorg index<cr>')
+
+
+vim.keymap.set('n', '>', ":cn<cr>");
+vim.keymap.set('n', '<', ":cp<cr>");
 
 remap_popup_menu('<cr>', '<c-y>')
 remap_popup_menu('<c-j>', '<c-n>')
@@ -775,3 +811,14 @@ vim.g.wrap = 0;
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et syntax=lua
+
+local lspconfig = require('lspconfig')
+lspconfig.gdscript.setup{}
+
+
+local pipepath = vim.fn.stdpath("cache") .. "/server.pipe"
+print(pipepath)
+if not vim.loop.fs_stat(pipepath) then
+  vim.fn.serverstart(pipepath)
+end
+
